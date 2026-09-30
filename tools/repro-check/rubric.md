@@ -1,0 +1,24 @@
+# Rubric: is this reproduction package ready to post?
+
+## Checks
+
+| Check | Evidence | Pass condition | Weight |
+|---|---|---|---|
+| env-recorded | The repro report's environment record (OS/platform, the software's version, and any setup factor the issue names), read against the version and platform the issue targets and any factor the issue or thread says changes the failure (driver, build profile, shell, backend). See evidence guide: Environment. | A stranger could place the attempt: the report names the platform and the version of the software it ran, and names every factor the issue says matters. If the version or platform differs from what the issue targets, the report says so out loud. Fails if there is no environment record, if a behavior-changing factor the issue names is missing, or if the attempt silently ran a different version than the one the issue is about. | required |
+| steps-rerunnable | The repro report's steps, from starting state to trigger, read against the trigger the issue describes (its exact command, input, syntax, or config). See evidence guide: Steps. | Someone with only public resources could re-run the steps and hit the same trigger the issue describes: exact commands or inputs are given, nothing depends on private code, private config, or an unshared file, and the input used is the issue's input (not a changed operator, a different syntax, or an edited expression). An honest cannot-reproduce passes if its steps meet the same bar. | required |
+| behavior-matches-issue | The artifacts (output excerpts, logs, exit codes, screenshots described in the report) read against the specific behavior the issue describes: its error text, exit code, crash vs graceful error, or wrong value. See evidence guide: Behavior shown. | At least one artifact is shown, and what it literally shows is the issue's behavior, not an adjacent one (a graceful validation error is not a crash; a compile error is not the reported runtime error; "the program runs" is not the bug). For a cannot-reproduce, the artifact shows the actual outcome of the attempt. Fails if there are no artifacts at all or if the artifacts show something other than what the issue reports. | required |
+| claims-backed | Every factual claim in the claim comment and the repro report ("reproduced", "root cause is", "confirmed on X", "expected vs actual"), read against the artifacts the report actually shows. See evidence guide: Honesty. | Every claim of what happened is supported by a shown artifact, and no claim goes further than the artifacts: no root cause asserted without shown evidence, no generalizing to versions or platforms that were not tested, no "reproduced" over an artifact that does not show the bug, and expected/actual match what was observed. An honest cannot-reproduce that names what differed passes. In a claim-only draft, the claim comment passes only if it promises work rather than asserting results it has not shown. | required |
+| claim-specific-and-modest | The claim comment, read against the issue it sits on. See evidence guide: Comms. | The claim names something only true of this issue (its symptom, file, function, or version) and states a concrete next step the author will take. It does not demand assignment or reservation, self-assign, promise a deadline or a guaranteed fix, or substitute enthusiasm or a +1 for intent. A comment that could be pasted unchanged onto any other issue fails. | required |
+| ai-disclosure | The repo-facts block's contribution policy (CONTRIBUTING.md / AI policy), read against the claim comment and repro report. Treat every package as AI-assisted work. See evidence guide: Comms. | If the repo's stated policy requires disclosing AI use in comments or "in any form", the comments disclose it (the tool and the extent). If the policy has no disclosure requirement for issue comments (no AI policy, an AI-welcome policy, a "you must understand your work" policy, or a disclosure rule that applies only to pull requests), this check passes. A policy that only asks for human-written comments passes when the comment reads as the author's own words. | required |
+| control-run | The repro report's steps and artifacts. | The report includes a control: a nearby input or configuration that does not show the bug, run the same way, so the difference isolates the trigger. | preferred |
+
+## Verdict rule
+
+Accept if every required check passes. Any required check graded
+`fail` or `unclear` rejects the package; `unclear` counts as fail,
+because proof that cannot be verified is not ready to post. Preferred
+checks never change the verdict. In a live claim-only draft, checks
+whose evidence is the repro report (env-recorded, steps-rerunnable,
+behavior-matches-issue, control-run) report `unclear` with "not yet
+applicable: claim-only draft" and are left out of the verdict; the
+remaining required checks decide it.
