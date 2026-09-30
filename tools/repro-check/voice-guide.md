@@ -48,7 +48,7 @@ I use Claude Code to help me draft and check my work. If the repo asks for discl
 
 The important part is that I still run the commands myself and check the output myself.
 
-* Wrong: (disclosure required, nothing said)
+* Wrong: "I set everything up and ran all the commands, here's my report." (on a repo whose policy requires AI disclosure)
 * Right: "I used Claude Code to help organize this report; I ran every command myself and checked the output."
 
 ## Things I never post
