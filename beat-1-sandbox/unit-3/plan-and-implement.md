@@ -142,21 +142,35 @@ fields.
 
 **Run history**
 
+Starting point: my group's activity worksheet. Its Phase 1 grade of `calib-03` with the
+sample rubric came out `hold` only because `test` failed (the plan has no automated test),
+while `diagnosis` passed on "passes if the plan says what causes the bug", even though the
+repro evidence rules that cause out (step 3: 25.8 s with `--paging=never`, no pager in the
+loop). Our Phase 2 draft kept that diagnosis wording. So the first thing I changed before any
+run was that check: `diagnosis-grounded` reads the stated cause against every repro step and
+control, and fails when a control shows the blamed part working. The `scope` and `test` ideas
+from the worksheet became `scope-bounded` and `test-decisive`, rewritten to judge the change
+and the observable outcome instead of whether files are listed or a test is "provided".
+
 1. Smoke run, `--limit 3` (pkg-01, pkg-02, pkg-03), to check the harness and the CLI before
    spending a full run: **3/3** (`categories: clear-accept 2/2  wrong-cause 1/1`).
-2. Full run with `--save-run eval-run.txt`, same rubric, evidence guide, and procedure as the
-   smoke run: **20/20** (`categories: clear-accept 7/7  scope-creep 4/4  thread-convention 2/2
-   unbuildable 3/3  wrong-cause 4/4`, `agreement: 20/20 scored items  (bar: 18/20: PASS)`).
-   This is the run recorded in `eval-run.txt`.
-3. One `--only pkg-04` re-grade after the full run, not to change anything but to pull the
-   per-check grades for the Package analysis below (the full run's table only names failed
-   checks when a package disagrees). Verdict still **reject**, agreeing with gold.
+2. Full run with `--save-run eval-run.txt`: **20/20** (`categories: clear-accept 7/7
+   scope-creep 4/4  thread-convention 2/2  unbuildable 3/3  wrong-cause 4/4`, `agreement:
+   20/20 scored items  (bar: 18/20: PASS)`).
+3. One `--only pkg-04` re-grade, not to change anything but to pull the per-check grades for
+   the Package analysis below (the full-run table only names failed checks when a package
+   disagrees). Still **reject**, agreeing with gold.
+4. After run 2, I ran the skill in live mode on my own `plan.md` (step 8). It reported two
+   procedure gaps that eval mode never reaches (what to do when the issue thread cannot be
+   fetched; which policy files to read, and to ignore classmates' repro comments). I added
+   those lines to `procedure.md`, then did a confirming full run with
+   `--include-calibration --save-run eval-run.txt` so the fingerprints in the saved run match
+   the uploaded files: **20/20**, same category line as run 2, and all four unscored
+   calibration packages agreed as well (`calib-01` accept; `calib-02`, `calib-03`, `calib-04`
+   reject). `calib-03` rejecting on `diagnosis-grounded` is the worksheet problem fixed. This
+   is the run recorded in `eval-run.txt`.
 
-I made two later edits to `procedure.md` after the full run, both to the live-mode text only
-(what to do when the issue thread can't be fetched, and which policy files to read plus
-"ignore classmates' repro comments"). They came from running the skill on my own plan in
-live mode, and eval mode never reaches those lines, so I did not re-run the full eval for
-them. The `procedure.md` fingerprint in `eval-run.txt` is therefore the pre-edit version.
+No package disagreed in any run, so I never needed a canary-style `--only` list.
 
 **Package analysis**
 
