@@ -19,7 +19,7 @@ jupitersnow1
 
 **Plan comment**
 
-COMMENT_LINK_PLACEHOLDER
+https://github.com/codepath/pathreview-ai301-fa26-s3/issues/47#issuecomment-5977579246
 
 > Plan for #47.
 > 
@@ -80,7 +80,7 @@ $ curl -X POST http://localhost:8000/auth/login -H 'Content-Type: application/js
 That is the gap: nothing in the file to copy, and the one request shape a reader would
 guess for login (JSON with `email`, the same as register) is rejected with a 422.
 
-**After** (branch `docs/47-api-curl-examples`, commit `2e238aa`, same Codespace, same
+**After** (branch `docs/47-api-curl-examples`, commit `8f27e4e`, same Codespace, same
 `uvicorn` command, database re-seeded with `make setup`'s steps; this is every example in the
 new `docs/API.md`, run in order, with JWTs replaced by `<token>` and long bodies trimmed):
 
