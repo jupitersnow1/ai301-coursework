@@ -154,6 +154,19 @@ in `docs/API.md`:
    use `curl -i` so the status line is visible, because for those two
    the status code is the interesting part (503, and 204 with an
    empty body). The other seven examples are unchanged from the plan.
+4. **Endpoint descriptions now name the request body.** Approach
+   step 4 said to keep every other line as it is, but I extended
+   six of the endpoint descriptions: register ("Takes a JSON body"),
+   login ("Takes an OAuth2 **form** body: the field is `username`
+   (your email), not `email`"), create profile ("Takes multipart form
+   fields; `resume_file` (PDF or Markdown) is optional"), create
+   review ("Takes a JSON body with the `profile_id`"), `/health`
+   ("Responds `200` when every dependency is healthy and `503`
+   otherwise"), and delete profile ("Returns `204 No Content` with an
+   empty body"). The body shape is the gap my diagnosis names, and a
+   reader skimming the endpoint list should see it without reading
+   the example, so I said it in the description too. No endpoint was
+   added or removed.
 
 Nothing else moved: still one file, still the nine endpoints the
 issue names, still the same request shapes and auth header notes.
