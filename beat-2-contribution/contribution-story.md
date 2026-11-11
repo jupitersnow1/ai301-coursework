@@ -1,4 +1,4 @@
-# Contribution: [Issue Title]
+# Contribution: A better HUD menu for PyTorch repos family
 
 Path: `beat-2-contribution/contribution-story.md`
 
@@ -8,10 +8,9 @@ format criteria grade exactly that. Your course repo link is the whole submissio
 files and no evidence uploads are part of Assignment 5.
 
 **Contribution Number:** [1]
-**Student:** [Student name]
-**GitHub Username:** [your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comments upstream are identified by this name.]
-**Issue:** [GitHub issue link]
+**Student:** Jacqueline Sanchez
+**GitHub Username:** jupitersnow1
+**Issue:** https://github.com/pytorch/test-infra/issues/5226
 **Pull Request:** [GitHub PR link, once opened]
 
 One repository, built across units 5 to 8, telling the whole story of your real
@@ -132,24 +131,46 @@ and add the link the moment your claim lands.]
 
 **Environment Setup**
 
-[What a stranger would need to stand this up: your operating system,
-the relevant versions (language, runtime, package manager, the project
-itself), and how you set the project up. Then the challenges you faced
-and how you solved them, or that none came up.]
+- OS: Ubuntu 24.04.5 LTS (GitHub Codespace)
+- Node v24.22.2, yarn 1.22.22, Next.js 15.5.16 (from `torchci/package.json`)
+- Code: my fork `jupitersnow1/test-infra`, `main` at upstream commit `c901b1dcc` (2026-11-11 00:34 UTC), no changes
+- Setup: `cd torchci && yarn install --frozen-lockfile && yarn dev`, then http://localhost:3000. No `.env.local`: data panels show "Error loading HUD data" without the ClickHouse keys, but the navbar and page frames still draw.
+- Challenges: `yarn install` took about 3 minutes with one network retry. The live hud.pytorch.org answered my scripted request with HTTP 429, so all evidence below is from the local run. Before any of this, `gh` in my codespace was logged in with the codespace's own token, which can't write to other repos: my first claim attempts passed the voice guard and then failed silently. I fixed it with `unset GITHUB_TOKEN` in `~/.bashrc` and `gh auth login`.
 
 **Steps to Reproduce**
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Open http://localhost:3000/hud/pytorch/pytorch/main and look at the left side of the top menu.
+2. Count the repo links: PyTorch, ExecuTorch, TorchVision, Helion. These are four hard-coded `<li><Link>` items in `torchci/components/layout/NavBar.tsx`, followed by CRCR.
+3. Request HUD pages for repos that are not in the menu: `/hud/pytorch/ao/main`, `/hud/pytorch/audio/main`, `/hud/pytorch/tutorials/main`, `/hud/pytorch/torchtune/main`. Open one of them in a browser.
+4. Run the screenshot script ([navbar-shots.js](evidence/navbar-shots.js), Playwright 1.48.2) at widths on both sides of the `@media screen and (max-width: 1350px)` rule in `NavBar.module.css`.
+5. Observed: four repo links; the HUD serves pages for repos with no link; at 1350px and below the bar wraps to two rows and the repo links take the whole top row.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** [link to commit in your fork]
-- **Screenshots/logs:** [if applicable]
-- **My findings:** [what you discovered during reproduction; an
-  honest, evidenced cannot-reproduce that led you to re-pick or ask
-  the maintainer belongs here and costs you nothing]
+- **Commit showing reproduction:** none (reproduced on unmodified upstream `c901b1dcc`)
+- **Screenshots/logs:** [navbar at 1351px](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/navbar-1351.png), [navbar at 1350px](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/navbar-1350.png), [navbar at 768px](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/navbar-768.png), [pytorch/ao HUD page](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/hud-ao-page.png), [script output](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/shot-output.txt), [curl output](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/unlisted-repos-curl.txt). Script output, unedited:
+
+  ```
+  width=1920: navbar height=60px; repo links: PyTorch@(184,23) ExecuTorch@(268,23) TorchVision@(379,23) Helion@(489,23) CRCR@(561,23)
+  width=1440: navbar height=60px; repo links: PyTorch@(170,24) ExecuTorch@(249,24) TorchVision@(351,24) Helion@(452,24) CRCR@(520,24)
+  width=1351: navbar height=60px; repo links: PyTorch@(166,25) ExecuTorch@(243,25) TorchVision@(344,25) Helion@(443,25) CRCR@(509,25)
+  width=1350: navbar height=126px; repo links: PyTorch@(166,16) ExecuTorch@(243,16) TorchVision@(344,16) Helion@(443,16) CRCR@(509,16)
+  width=1280: navbar height=124px; repo links: PyTorch@(165,15) ExecuTorch@(243,15) TorchVision@(343,15) Helion@(442,15) CRCR@(508,15)
+  width=1024: navbar height=112px; repo links: PyTorch@(155,13) ExecuTorch@(227,13) TorchVision@(322,13) Helion@(417,13) CRCR@(478,13)
+  width=768: navbar height=106px; repo links: PyTorch@(151,13) ExecuTorch@(222,13) TorchVision@(316,13) Helion@(409,13) CRCR@(468,13)
+  ao page: h1/h2 text = [":"]
+  ```
+
+  curl status for the unlisted repos (titles are empty because the page sets them in the browser):
+
+  ```
+  200 http://localhost:3000/hud/pytorch/ao/main  title: 
+  200 http://localhost:3000/hud/pytorch/audio/main  title: 
+  200 http://localhost:3000/hud/pytorch/tutorials/main  title: 
+  200 http://localhost:3000/hud/pytorch/torchtune/main  title: 
+  ```
+
+- **My findings:** The issue is still real on today's `main`. The menu has room for a handful of repos, each its own top-level link, while Benchmarks, Metrics, and Dev Infra next to it already group their items with `NavBarGroupDropdown`. The HUD serves pages for repos that have no menu link (`/hud/pytorch/ao/main` draws a page headed `pytorch/ao : main` under a menu with no ao entry), and `lib/bot/utils.ts` lists 13 repos with Dr.CI enabled. Since the issue was filed, audio was removed from the menu (PR #8246) and Helion was added. At 1351px the bar is one 60px row; at 1350px it wraps to 126px and the repo links fill the top row, so each repo added the current way costs another top-level item there. The `h1/h2` line in the output is the script failing to read the ao heading (it isn't in an h1/h2), so the screenshot is the evidence for that page.
 
 **Toolkit**
 
