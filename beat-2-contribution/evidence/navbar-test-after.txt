@@ -1,0 +1,4 @@
+PASS test/navBar.test.tsx
+    ✓ lists each repo HUD in the Repos dropdown (2 ms)
+    ✓ groups the repos under one Repos item instead of top-level links (34 ms)
+Tests:       2 passed, 2 total

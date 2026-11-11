@@ -178,67 +178,101 @@ Claim comment: https://github.com/pytorch/test-infra/issues/5226#issuecomment-67
 
 **Analysis**
 
-[Your analysis of the root cause: what is causing the issue, traced
-to the files and functions involved.]
+The repo links are hard-coded in `torchci/components/layout/NavBar.tsx`: the left `<ul className={styles.navbarlinkslist}>` holds the "PyTorch CI HUD" home link, then one `<li><Link prefetch={false} href="/hud/pytorch/<repo>/main">` per repo (PyTorch, ExecuTorch, TorchVision, Helion), then CRCR. So every repo is its own top-level menu item, and onboarding a repo to the menu means adding another one.
+
+The space limit comes from `torchci/components/layout/NavBar.module.css`: under `@media screen and (max-width: 1350px)` each half of the navbar takes a full row. My reproduction measured the bar at 60px tall at 1351px and 126px at 1350px, with the repo links filling the top row. Meanwhile the HUD already serves pages for repos that have no link (`/hud/pytorch/ao/main`, `/audio/main`, `/tutorials/main`, `/torchtune/main` all returned 200).
+
+The same file already solves this for other links: Benchmarks, Metrics, and Dev Infra are each one `NavBarGroupDropdown` (`torchci/components/layout/NavBarGroupDropdown.tsx`), which takes a list of `NavItem`s (`{label, route, type: "item"}`) and shows them in a menu on hover (desktop) or tap (touch).
 
 **Proposed Solution**
 
-[High-level description of your fix approach, and what you are
-deliberately NOT changing.]
+Group the repo links into one "Repos" dropdown using the existing `NavBarGroupDropdown`, following huydhn's suggestion in the thread ("I'm thinking grouping similar items into drop down lists could be a great way to achieve this"). The four repo links become one top-level item, and adding a repo later is one line in a list instead of a new top-level slot.
+
+What it does not fix: the two-row wrap under 1350px. That comes from the `@media screen and (max-width: 1350px)` rule in `NavBar.module.css`, which gives each half of the bar `width: 100%` no matter how many links it holds, so the bar will still be about 126px tall at 1350px. The fix is about top-level slots, not the wrap.
+
+What I'm deliberately NOT changing:
+- Which repos are listed. The dropdown keeps the same four (PyTorch, ExecuTorch, TorchVision, Helion). Adding ao, audio, etc. is a maintainer decision, so I'll ask in the PR instead of choosing.
+- The "PyTorch CI HUD" home link, the CRCR link, and everything on the right side (Tests, Help, Requests, KPIs, Benchmarks, Metrics, Dev Infra, login).
+- `NavBarGroupDropdown.tsx` and `NavBar.module.css`.
+- Any other page.
+
+Credit: devesh-2002's PR #5274 (2024) took the same approach, moving the repo links into a "Tools" dropdown in what was then `torchci/components/NavBar.tsx`. That file has since moved to `torchci/components/layout/NavBar.tsx` and the old `NavBarDropdown` was replaced by `NavBarGroupDropdown`, so #5274 no longer applies cleanly. My change redoes that idea on today's code, and my PR will say so and credit #5274.
+
+Risks and open questions:
+
+- Which repos belong in the list is the maintainers' call; I keep the four and ask about ao, audio, and the rest.
+- One click becomes a hover plus a click to reach PyTorch's HUD. "PyTorch CI HUD" on the left still links to `/`, so the main page stays one click away.
+- devesh-2002's PR #5274 (the same dropdown idea, on the old file) is still open and they haven't answered my claim yet. I build on my fork, and I'll check the thread again before opening a PR.
+- `NavBarGroupDropdown` renders its items as plain `<a href>` rather than Next.js `Link`, the same as the other dropdowns, so these links do a full page load.
+
+Deviations will be recorded here as they happen.
 
 **Implementation Plan**
 
-1. [Modify file X to do Y]
-2. [Add or change Z]
-3. [Update tests]
+1. Make a branch `fix/5226-repos-dropdown` from upstream `main`.
+2. In `torchci/components/layout/NavBar.tsx`, add an exported `repoNavItems: NavItem[]` list with the four repos and their existing routes, and replace the four repo `<li><Link>` items with `<NavBarGroupDropdown title="Repos" items={repoNavItems} />`.
+3. Add `torchci/test/navBar.test.tsx`, following the repo's `renderToStaticMarkup` pattern (as in `test/crcrLevelHistory.test.tsx`), mocking `LoginSection`, `ThemeModePicker`, and the benchmark nav group. It checks that `repoNavItems` has the four repo routes, and that the rendered navbar has a "Repos" dropdown and no top-level `/hud/pytorch/executorch/main` link. It fails on `main` (no `repoNavItems`, and the link is top-level).
+4. Run `yarn format`, then every check in my manifest: `yarn lint`, `yarn prettier --check .`, `yarn tsc`, `yarn test`.
+5. Re-run my reproduction (the Playwright script at 1351px and 1350px, hovering "Repos" to show the four links) for before/after evidence, in both light and dark mode, because `torchci/CLAUDE.md` requires both. Expected: one "Repos" item where four links were, the four links inside it on hover, and the bar still about 126px tall at 1350px (the wrap isn't part of this fix).
 
-[Record deviations here as they happen: what changed mid-build and
-why. A recorded deviation is honest work; silent drift is not.]
+Deviations: none in the code. The plan itself changed before the build: plan-check showed that my first draft described the 1350px wrap as the problem, which this fix doesn't change, and that I had wrongly called #5274 "a search bar" when it was the same dropdown idea. I reframed the problem as top-level slots and added credit to #5274.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: plan-check, grading plan.md and a draft plan comment (plan-comment.md, not posted) together, three rounds
+- What it produced: accept on round 3 with all six checks passing
+- Difficulties: round 1 rejected the comment for not saying it followed huydhn's dropdown suggestion, and warned that my 60px-to-126px numbers described a wrap my fix doesn't change; round 2 accepted but failed "unknowns-named" because I called #5274 "a search bar" when its diff is the same dropdown approach. It also couldn't find my voice guide through the symlink until I gave it the real path.
+- What changed: credited huydhn and #5274 in the plan and comment, reframed the problem as top-level slots, added a Risks section, and predicted the wrap stays at about 126px
 
 ---
 
 ## Testing Strategy
 
-[What observable checks prove the fix: your reproduction steps re-run
-against the built change (before and after), and the repo's own test
-suite or checks with the outcome shown. "Tests pass" with nothing
-observable named is not a strategy.]
+Three things prove the fix, each run before and after:
+
+1. **The reproduction, re-run.** The same Playwright script at 1920, 1440, 1351, 1350, 1280, 1024 and 768px. Before: four top-level repo links. After: one "Repos ▾" item in their place, and hovering it lists all four repos with the same routes, in both light and dark mode (`torchci/CLAUDE.md` requires both). As planned, the bar is still 126px at 1350px, because the wrap comes from CSS I didn't change.
+
+   ```
+   before width=1920: navbar height=60px; repo links: PyTorch@(184,23) ExecuTorch@(268,23) TorchVision@(379,23) Helion@(489,23) CRCR@(561,23)
+   after  width=1920: navbar height=60px; visible repo items: Repos ▾@(171,15) CRCR@(262,23)
+   after  dark mode, hover Repos: ["PyTorch -> /hud/pytorch/pytorch/main","ExecuTorch -> /hud/pytorch/executorch/main","TorchVision -> /hud/pytorch/vision/main","Helion -> /hud/pytorch/helion/main"]
+   ```
+
+   Full output: [after-output.txt](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/after-output.txt); screenshots: [after, 1920px](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/after-navbar-1920.png), [menu open, light](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/after-repos-open-light.png), [menu open, dark](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/after-repos-open-dark.png).
+
+2. **A new test that fails without the fix.** `torchci/test/navBar.test.tsx` checks the four repos are in `repoNavItems` and that the navbar renders "Repos ▾" with no top-level repo links. With the old `NavBar.tsx`: `Tests: 2 failed, 2 total`; on the branch: `Tests: 2 passed, 2 total` ([before](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/navbar-test-before.txt), [after](https://github.com/jupitersnow1/ai301-coursework/blob/main/beat-2-contribution/evidence/navbar-test-after.txt)).
+
+3. **The repo's own CI checks**, from `.github/workflows/torchci.yml`, each run in a fresh shell: `yarn lint`, `yarn prettier --check .`, `yarn tsc`, and `yarn test` all exit 0 on the branch (206 test suites pass, up from 205 on main with the new one).
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: my Playwright screenshot script (re-run with a hover step and light/dark mode), jest, and the CI checks from my ship manifest
+- What it produced: before/after measurements and screenshots, the new test failing on the old code and passing on the fix, and all four CI checks passing
+- Difficulties: the dev server had stopped by the time I re-ran the script (connection refused), so I restarted it; the numbers showed "Repos" 8px above CRCR, which I checked in the screenshot and found was the button's padding, not a misalignment
+- What changed: added the 1350/1351 boundary, the hover, and dark mode to the after run so it answers the plan's predictions
 
 ---
 
 ## Implementation Notes
 
-[A running log, added to as you work. Date each entry. What you
-built, decisions you made when you made them, wrong turns included.]
+**2026-11-11 (morning): picked, claimed, reproduced**
 
-**[Date]**
+Picked #5226 against my scout's reject (its only blocker was #5274, untouched since May 2024). Posted my claim asking devesh-2002 if they're still on it. The first two posting attempts passed my voice guard but failed, because `gh` was using the codespace token; fixed with `gh auth login`. Reproduced on upstream `c901b1dcc`: four top-level repo links, and HUD pages for ao, audio, tutorials, and torchtune with no link.
 
-[Entry]
+**2026-11-11: planned**
 
-**[Date]**
+Decided on one "Repos" dropdown with the existing `NavBarGroupDropdown`, keeping the same four repos so the PR doesn't decide which repos belong. Wrong turn: I first described the 1350px wrap as the problem, but the wrap comes from CSS and won't change. Second wrong turn: I described #5274 as a search bar without reading its diff; it's the same dropdown idea on the old file, so the PR now credits it.
 
-[Entry]
+**2026-11-11: built and tested**
+
+Branch `fix/5226-repos-dropdown`. Wrote `test/navBar.test.tsx` first and watched both tests fail on the old code, then exported `repoNavItems` and replaced the four `<li><Link>` items with `<NavBarGroupDropdown title="Repos" items={repoNavItems} />` (commit `1c2c5ed84`, +10/-20 in `NavBar.tsx`). Tightened the test from checking for the word "Repos" to `>Repos ▾</button>` so it can't pass by accident. Ran `yarn format` on the two files. All manifest checks pass in a fresh shell. Commits use my GitHub noreply email.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code in my clone, with CLAUDE.local.md loaded (the navbar files and CI commands were already in it), plus jest for test-first
+- What it produced: a two-file change (NavBar.tsx and a new test) on its own branch, and these dated notes
+- Difficulties: the plan's two wrong turns above (the wrap, and #5274) were caught by plan-check, not by me
+- What changed: I now read an earlier PR's diff before describing it
 
 ---
 

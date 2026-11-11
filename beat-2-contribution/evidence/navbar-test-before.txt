@@ -1,0 +1,4 @@
+FAIL test/navBar.test.tsx
+    ✕ lists each repo HUD in the Repos dropdown (1 ms)
+    ✕ groups the repos under one Repos item instead of top-level links (32 ms)
+Tests:       2 failed, 2 total

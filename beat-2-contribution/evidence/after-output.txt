@@ -1,0 +1,9 @@
+width=1920: navbar height=60px; visible repo items: Repos ▾@(171,15) CRCR@(262,23)
+width=1440: navbar height=60px; visible repo items: Repos ▾@(157,16) CRCR@(241,24)
+width=1351: navbar height=60px; visible repo items: Repos ▾@(153,17) CRCR@(236,25)
+width=1350: navbar height=126px; visible repo items: Repos ▾@(153,8) CRCR@(236,16)
+width=1280: navbar height=124px; visible repo items: Repos ▾@(153,7) CRCR@(236,15)
+width=1024: navbar height=112px; visible repo items: Repos ▾@(145,5) CRCR@(225,13)
+width=768: navbar height=106px; visible repo items: Repos ▾@(141,5) CRCR@(221,13)
+light mode, hover Repos: ["PyTorch -> /hud/pytorch/pytorch/main","ExecuTorch -> /hud/pytorch/executorch/main","TorchVision -> /hud/pytorch/vision/main","Helion -> /hud/pytorch/helion/main"]
+dark mode, hover Repos: ["PyTorch -> /hud/pytorch/pytorch/main","ExecuTorch -> /hud/pytorch/executorch/main","TorchVision -> /hud/pytorch/vision/main","Helion -> /hud/pytorch/helion/main"]
