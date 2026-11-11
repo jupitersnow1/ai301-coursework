@@ -1,0 +1,8 @@
+width=1920: navbar height=60px; repo links: PyTorch@(184,23) ExecuTorch@(268,23) TorchVision@(379,23) Helion@(489,23) CRCR@(561,23)
+width=1440: navbar height=60px; repo links: PyTorch@(170,24) ExecuTorch@(249,24) TorchVision@(351,24) Helion@(452,24) CRCR@(520,24)
+width=1351: navbar height=60px; repo links: PyTorch@(166,25) ExecuTorch@(243,25) TorchVision@(344,25) Helion@(443,25) CRCR@(509,25)
+width=1350: navbar height=126px; repo links: PyTorch@(166,16) ExecuTorch@(243,16) TorchVision@(344,16) Helion@(443,16) CRCR@(509,16)
+width=1280: navbar height=124px; repo links: PyTorch@(165,15) ExecuTorch@(243,15) TorchVision@(343,15) Helion@(442,15) CRCR@(508,15)
+width=1024: navbar height=112px; repo links: PyTorch@(155,13) ExecuTorch@(227,13) TorchVision@(322,13) Helion@(417,13) CRCR@(478,13)
+width=768: navbar height=106px; repo links: PyTorch@(151,13) ExecuTorch@(222,13) TorchVision@(316,13) Helion@(409,13) CRCR@(468,13)
+ao page: h1/h2 text = [":"]
