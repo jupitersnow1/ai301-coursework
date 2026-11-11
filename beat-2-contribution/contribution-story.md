@@ -54,16 +54,13 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 5: [one line on the tool work]**
+**Unit 5: built issue-scout and a search strategy scoped to the Jupyter/conda orgs**
 
-[2-4 sentences: what you built (the scout, your strategy), what broke
-or fell short, what changed because of it.]
+I installed issue-scout over my Unit 1 skill and wrote three queries (good first issue, help wanted, and documentation in the Jupyter and conda orgs) with ranking filters that drop assigned issues and long threads and put good-first-issue results first. The broad `--language python` searches returned mostly brand-new solo repos, so I scoped the queries to orgs, and the "Nobody already on it" check missed open PRs that weren't linked on the issue (5 of the 8 issues I graded had one). I added a PR search to that check in my rubric.
 
-**Unit 6: [one line on the tool work]**
+**Unit 6: voice guard, upstream rules, and a CLAUDE.local.md for test-infra**
 
-[2-4 sentences: the voice-guard, the repo-memory file. What broke or
-fell short, and what changed because of it. "Nothing broke" counts when
-it is true - say how you know.]
+I merged my voice guide into one file, added Upstream rules for claims, questions, and pings, installed the guard hook, and wrote a CLAUDE.local.md with test-infra's CI checks and the navbar files. The thing that stuck with me is that the guard passed my claim while the post silently failed: `gh` was using my codespace's built-in token, which can't write to other repos. I fixed it with `unset GITHUB_TOKEN` and `gh auth login`, and repro-check also caught my first draft opening with "I'd like to work on this" before asking the earlier claimant, so I moved the question first.
 
 **Unit 7: [one line on the tool work]**
 
@@ -79,24 +76,20 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs in your own words: how you searched, what your scan
-surfaced, what your scout's verdict said, why this issue fits your
-profile, and what you hope to learn. If your scout's verdict on it
-was reject and you chose it anyway, say so here and say why; choosing
-against your own tool silently is what loses points. Close with an
-honest read of the tool itself: where the scout fell short on a real
-wild search and what you changed or would change, or what convinced
-you it held up. **Record the link to your claim comment in this section too.**
-Not claimed yet? Write `claim pending` and today's date where the link goes,
-and add the link the moment your claim lands.]
+My scan searched the Jupyter and conda orgs and accepted only one issue (jupyterlab/lumino#449), so I picked three issues on the Issue Selection site instead: pytorch/test-infra#5226, pytorch/pytorch#106571, and pytorch/pytorch#121587. My scout rejected all three. #106571 is a codebase-wide checklist with new claims from the last two weeks, and #121587 already has two open PRs. #5226 failed only one check, "Nobody already on it", because devesh-2002 claimed it in May 2024 and their PR #5274 is still open, even though it hasn't changed since 2024-05-29. It got no difficulty note since it wasn't accepted; by hand I'd call it ambitious, because the menu layout is still an open design question.
+
+I chose #5226 anyway. I have some experience using PyTorch and was looking to enhance something, and this is a React/TypeScript change in one file (`NavBar.tsx`) with a dropdown component the repo already uses. Instead of claiming over devesh-2002, my claim asks them if they're still working on it. I hope to learn how to properly contribute to issues on GitHub.
+
+I was surprised that the scout rejected the issue even though it was last worked on a really long time ago. My rubric treats an old claim comment as abandoned after 21 days, but treats any open PR as live forever. It also missed open PRs that weren't linked on the issue, which I fixed by adding a PR search to that check.
+
+Claim comment: https://github.com/pytorch/test-infra/issues/5226#issuecomment-6788361965. After posting, I edited it to remove "I'll post what I find here within a few days," because we were taught not to post a timeline until we actually have the info to post.
 
 **Toolkit**
 
-- Tool: issue-scout (your scout: your search strategy, your rubric),
-  and how you used it
-- What it produced: [the scan and its verdict on this issue, described]
-- Difficulties: [where it fell short, or "none met" if none did]
-- What changed: [what you patched or would update, or "nothing"]
+- Tool: issue-scout (my search strategy and rubric): one scan, then direct grading of my three picks, then a regrade after the Unit 6 scope patch
+- What it produced: 60 unique results, 45 after ranking, top 5 graded with 1 accept (lumino#449); all three of my picks rejected, #5226 only on "Nobody already on it" (open PR #5274, untouched since 2024-05-29)
+- Difficulties: the claim check missed open PRs not linked on the issue, and it treats a 2.5-year-old PR as a live claim
+- What changed: added a PR search to "Nobody already on it"; replaced "Scope fits a newcomer" with scope-feasible plus a difficulty note (it changed #106571's reason, not any verdict); would add "no PR activity for 6+ months counts as abandoned"
 
 ---
 
@@ -174,10 +167,10 @@ and add the link the moment your claim lands.]
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: repro-check, grading my claim draft and repro report together, three rounds
+- What it produced: accept on the third round (all six required checks plus the control run)
+- Difficulties: round 1 rejected my report for saying the unlisted pages "render" with no output shown; round 2 for saying "below 1350px" without measuring 1350, for tidying the script's output instead of pasting it, and for a script nobody else could see
+- What changed: measured 1351px vs 1350px (60px vs 126px), added a screenshot of the ao page, pasted output unedited, put the script inline, and committed the evidence to my course repo
 
 ---
 
